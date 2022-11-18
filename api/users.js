@@ -9,12 +9,9 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET;
 /* POST : user register */
 exports.register = async function (req, res) {
 
-  // request validation
-  body('email').isEmail()
-  body('firstname').isLength({ min: 1 })
-  body('lastname').isLength({ min: 1 })
-  body('password').isLength({ min: 10 })
-  body('confirmPassword').equals(body.password)
+  if (req.body.password !== req.body.confirmPassword) {
+    return res.status(400).json({ error: "Confirm Password different de password" });
+  }
 
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
@@ -40,10 +37,6 @@ exports.register = async function (req, res) {
 /* POST : user login */
 exports.login = async function (req, res) {
 
-  // request validation
-  body('email').isEmail()
-  body('password').isLength({ min: 10 })
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -58,6 +51,10 @@ exports.login = async function (req, res) {
 
       const token = jwt.sign({ email: email }, TOKEN_SECRET, { expiresIn: "2h" });
 
+      /* Cette partie est juste pour stocker le token dans un cookie pour démontrer le logout après dans le route de /api/auth/logout */
+
+      res.cookie('access_token', token, { maxAge: 2 * 60 * 1000, httpOnly: true });
+      
       // user
       return res.status(200).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone, token: token });
     }
@@ -118,8 +115,10 @@ exports.edit = async function (req, res) {
 /* PUT : Edit user password */
 exports.editPassword = async function (req, res) {
 
-  body('password').isLength({ min: 10 })
-  body('confirmPassword').equals(req.body.password)
+
+  if (req.body.password !== req.body.confirmPassword) {
+    return res.status(400).json({ error: "Confirm Password different de password" });
+  }
 
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
@@ -185,9 +184,6 @@ exports.editPhone = async function (req, res) {
 /* PUT : Edit user email */
 exports.editEmail = async function (req, res) {
 
-  // request validation
-  body('email').isEmail()
-
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -218,7 +214,7 @@ exports.editEmail = async function (req, res) {
 
 }
 
-/* PUT : Edit user email */
+/* DELETE : Edit user email */
 exports.deleteUser = async function (req, res) {
 
   const jwtToken = req.headers.access_token;
@@ -245,3 +241,13 @@ exports.deleteUser = async function (req, res) {
   });
 
 }
+
+/* DELETE : logout user */
+/* Logout c'est juste la suppression du cookie qui contient l'access token */
+exports.logout = async function (req, res) {
+
+  res.clearCookie('access_token');
+
+  return res.status(200).send("Logged out");
+}
+
