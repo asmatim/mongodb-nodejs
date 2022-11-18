@@ -30,6 +30,8 @@ app.put('/api/user/edit-password', users.editPassword);
 // edit user phone
 app.put('/api/user/edit-phone', users.editPhone);
 
+// edit user email
+app.put('/api/user/edit-email', users.editEmail);
 
 
 const start = async () => {

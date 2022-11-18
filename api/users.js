@@ -181,3 +181,40 @@ exports.editPhone = async function (req, res) {
 
 }
 
+
+/* PUT : Edit user email */
+exports.editEmail = async function (req, res) {
+
+  // request validation
+  body('email').isEmail()
+
+  // Finds the validation errors in this request and wraps them in an object with handy functions
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const jwtToken = req.headers.access_token;
+
+  jwt.verify(jwtToken, TOKEN_SECRET, async function (err, decoded) {
+    if (err) {
+      return res.status(400).send("Invalid Credentials");
+    }
+    let user = await User.findOne({ email: decoded.email });
+
+    if (user) {
+      let updatedUser = await User.updateOne({ email: decoded.email }, { email: req.body.email })
+
+      if (updatedUser.modifiedCount == 1) {
+        user = await User.findOne({ email: decoded.email });
+        return res.status(201).json({ message: "Email modifié !" });
+      }
+      return res.status(400).send("Erreur de modification");
+    }
+
+    return res.status(404).send("User not found");
+
+  });
+
+}
+
