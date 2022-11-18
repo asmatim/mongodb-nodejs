@@ -10,6 +10,8 @@ app.use(express.json());
 
 app.post('/api/auth/register', users.register);
 
+app.post('/api/auth/login', users.login);
+
 
 
 const start = async () => {
