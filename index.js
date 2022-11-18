@@ -8,15 +8,27 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Register user
 app.post('/api/auth/register', users.register);
 
+
+// login user
 app.post('/api/auth/login', users.login);
 
+
+// get user profile
 app.get('/api/user/profile', users.profile);
 
+
+// edit user info
 app.put('/api/user/edit', users.edit);
 
+
+// edit user password
 app.put('/api/user/edit-password', users.editPassword);
+
+// edit user phone
+app.put('/api/user/edit-phone', users.editPhone);
 
 
 

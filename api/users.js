@@ -100,8 +100,8 @@ exports.edit = async function (req, res) {
     let user = await User.findOne({ email: decoded.email });
 
     if (user) {
-      let updatedUser = await User.updateOne({ email: user.email }, { firstname: req.body.firstname , lastname: req.body.lastname })
-    
+      let updatedUser = await User.updateOne({ email: user.email }, { firstname: req.body.firstname, lastname: req.body.lastname })
+
       if (updatedUser.modifiedCount == 1) {
         user = await User.findOne({ email: decoded.email });
         return res.status(201).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone, message: "Modification du compte réussie !" });
@@ -115,7 +115,7 @@ exports.edit = async function (req, res) {
 
 }
 
-/* PUT : Edit user firstname and lastname */
+/* PUT : Edit user password */
 exports.editPassword = async function (req, res) {
 
   body('password').isLength({ min: 10 })
@@ -140,10 +140,37 @@ exports.editPassword = async function (req, res) {
       const hash = await argon2.hash(req.body.password);
 
       let updatedUser = await User.updateOne({ email: user.email }, { password: hash })
-    
+
       if (updatedUser.modifiedCount == 1) {
         user = await User.findOne({ email: decoded.email });
         return res.status(201).json({ message: "Mot de passe modifié !" });
+      }
+      return res.status(400).send("Erreur de modification");
+    }
+
+    return res.status(404).send("User not found");
+
+  });
+
+}
+
+/* PUT : Edit user phone */
+exports.editPhone = async function (req, res) {
+
+  const jwtToken = req.headers.access_token;
+
+  jwt.verify(jwtToken, TOKEN_SECRET, async function (err, decoded) {
+    if (err) {
+      return res.status(400).send("Invalid Credentials");
+    }
+    let user = await User.findOne({ email: decoded.email });
+
+    if (user) {
+      let updatedUser = await User.updateOne({ email: user.email }, { phone: req.body.phone })
+
+      if (updatedUser.modifiedCount == 1) {
+        user = await User.findOne({ email: decoded.email });
+        return res.status(201).json({ message: "Numéro de téléphone modifié !" });
       }
       return res.status(400).send("Erreur de modification");
     }
