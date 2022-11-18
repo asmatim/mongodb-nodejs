@@ -14,6 +14,8 @@ app.post('/api/auth/login', users.login);
 
 app.get('/api/user/profile', users.profile);
 
+app.put('/api/user/edit', users.edit);
+
 
 
 const start = async () => {

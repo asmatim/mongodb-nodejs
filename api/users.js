@@ -85,5 +85,32 @@ exports.profile = async function (req, res) {
     return res.status(404).send("User not found");
 
   });
-  
+
+}
+
+/* PUT : Edit user firstname and lastname */
+exports.edit = async function (req, res) {
+
+  const jwtToken = req.headers.access_token;
+
+  jwt.verify(jwtToken, TOKEN_SECRET, async function (err, decoded) {
+    if (err) {
+      return res.status(400).send("Invalid Credentials");
+    }
+    let user = await User.findOne({ email: decoded.email });
+
+    if (user) {
+      let updatedUser = await User.updateOne({ email: user.email }, { firstname: req.body.firstname , lastname: req.body.lastname })
+    
+      if (updatedUser.modifiedCount == 1) {
+        user = await User.findOne({ email: decoded.email });
+        return res.status(200).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone, message: "Modification du compte réussie !" });
+      }
+      return res.status(400).send("Erreur de modification");
+    }
+
+    return res.status(404).send("User not found");
+
+  });
+
 }
