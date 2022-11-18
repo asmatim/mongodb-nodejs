@@ -12,6 +12,8 @@ app.post('/api/auth/register', users.register);
 
 app.post('/api/auth/login', users.login);
 
+app.get('/api/user/profile', users.profile);
+
 
 
 const start = async () => {

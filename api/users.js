@@ -32,13 +32,9 @@ exports.register = async function (req, res) {
     password: hash
   })
 
-  user.save();
+  await user.save();
 
-  return res.status(200).json({
-    error: false,
-    body,
-    hash
-  })
+  return res.status(200).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone });
 }
 
 /* POST : user login */
@@ -63,10 +59,31 @@ exports.login = async function (req, res) {
       const token = jwt.sign({ email: email }, TOKEN_SECRET, { expiresIn: "2h" });
 
       // user
-      return res.status(200).json(user);
+      return res.status(200).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone, token: token });
     }
     return res.status(400).send("Invalid Credentials");
   } catch (err) {
     console.log(err);
   }
+}
+
+/* GET : user profile */
+exports.profile = async function (req, res) {
+
+  const jwtToken = req.headers.access_token;
+
+  jwt.verify(jwtToken, TOKEN_SECRET, async function (err, decoded) {
+    if (err) {
+      return res.status(400).send("Invalid Credentials");
+    }
+    const user = await User.findOne({ email: decoded.email });
+
+    if (user) {
+      return res.status(200).json({ email: user.email, nom: user.lastname, prenom: user.firstname, phone: user.phone });
+    }
+
+    return res.status(404).send("User not found");
+
+  });
+  
 }
