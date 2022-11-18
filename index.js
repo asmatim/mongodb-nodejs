@@ -34,6 +34,10 @@ app.put('/api/user/edit-phone', users.editPhone);
 app.put('/api/user/edit-email', users.editEmail);
 
 
+// delete user
+app.delete('/api/user/delete', users.deleteUser);
+
+
 const start = async () => {
     try {
         await mongoose.connect(

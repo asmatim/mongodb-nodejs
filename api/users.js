@@ -218,3 +218,30 @@ exports.editEmail = async function (req, res) {
 
 }
 
+/* PUT : Edit user email */
+exports.deleteUser = async function (req, res) {
+
+  const jwtToken = req.headers.access_token;
+
+  jwt.verify(jwtToken, TOKEN_SECRET, async function (err, decoded) {
+    if (err) {
+      return res.status(400).send("Invalid Credentials");
+    }
+    let user = await User.findOne({ email: decoded.email });
+
+    if (user) {
+      let deletedUser = await User.deleteOne({ email: decoded.email })
+
+      console.log(deletedUser);
+
+      if (deletedUser.deletedCount == 1) {
+        return res.status(201).json({ message: "Votre profil a été supprimé ! Un email de confirmation de suppression vous a été envoyé" });
+      }
+      return res.status(400).send("Erreur de suppression");
+    }
+
+    return res.status(404).send("User not found");
+
+  });
+
+}
