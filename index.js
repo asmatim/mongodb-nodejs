@@ -16,6 +16,8 @@ app.get('/api/user/profile', users.profile);
 
 app.put('/api/user/edit', users.edit);
 
+app.put('/api/user/edit-password', users.editPassword);
+
 
 
 const start = async () => {
